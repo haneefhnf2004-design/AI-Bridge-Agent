@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI BRIDGE AGENT V2 — Powered by OmniRoute (358 Providers)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#060818;color:#e6f0ff;font-family:Inter,system-ui,sans-serif;padding:18px}
+  .poster{max-width:1180px;margin:0 auto;background:linear-gradient(180deg,#070a2a 0%,#050814 100%);border:1px solid #26306b;border-radius:18px;overflow:hidden;box-shadow:0 0 60px rgba(60,80,255,.25)}
+  header{padding:22px 22px 14px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #1b2250;background:radial-gradient(600px 200px at 20% 0%,rgba(70,90,255,.25),transparent)}
+  .brand{display:flex;gap:14px;align-items:center}
+  .brain{width:56px;height:56px;border-radius:14px;background:radial-gradient(120% 120% at 30% 20%,#7aa0ff 0%,#3a4bff 45%,#0a0e2a 100%);display:grid;place-items:center;font-size:28px;box-shadow:0 0 20px rgba(80,100,255,.6);border:1px solid #5a6cff}
+  h1{font-size:30px;letter-spacing:.02em;line-height:1;font-weight:900}
+  h1 span{background:linear-gradient(90deg,#8af0ff,#7a8cff,#c080ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .subtitle{font-size:12px;color:#9fb0ff;margin-top:4px;letter-spacing:.04em}
+  .subtitle b{color:#b7c8ff}
+  .supported{background:#0a0f2e;border:1px solid #2a3570;border-radius:14px;padding:10px 14px;min-width:360px}
+  .supported h3{font-size:10px;letter-spacing:.18em;color:#8aa0ff;text-align:center;margin-bottom:8px}
+  .providers{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pill{display:flex;flex-direction:column;align-items:center;gap:4px;background:#0f1740;border:1px solid #2a3a8a;border-radius:10px;padding:7px 8px;min-width:72px}
+  .pill i{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:16px;color:#fff}
+  .pill strong{font-size:10px}
+  .pill em{font-size:8px;color:#8da0ff;font-style:normal}
+  .badge-more{border-style:dashed;color:#8fb0ff}
+  .or{font-size:10px;color:#00e5ff;font-weight:800}
+  /* roadmap */
+  .section-title{text-align:center;font-size:13px;letter-spacing:.22em;color:#8fb0ff;margin:14px 0 8px;font-weight:800}
+  .roadmap{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:0 14px}
+  .phase{border-radius:14px;padding:10px;border:1px solid #2a3a80;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));position:relative;overflow:hidden}
+  .phase:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c)}
+  .ph1{--c:#b07cff}.ph2{--c:#5aa0ff}.ph3{--c:#00e5d0}.ph4{--c:#3dff8a}.ph5{--c:#ffd24d}.ph6{--c:#ff7a3d}
+  .phase h4{font-size:11px;line-height:1.2;margin:6px 0 2px}
+  .phase small{font-size:8px;color:#9fb0ff;letter-spacing:.08em}
+  .phase ul{margin:6px 0 4px 12px;font-size:9.5px;line-height:1.45;color:#d6e0ff}
+  .phase .out{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 6px;font-size:8.5px;text-align:center;margin-top:6px;color:#b9ccff}
+  .phase .out b{color:#fff}
+  .timeline{display:flex;align-items:center;gap:6px;padding:10px 14px 6px}
+  .timeline .line{flex:1;height:2px;background:linear-gradient(90deg,#b07cff,#5aa0ff,#00e5d0,#3dff8a,#ffd24d,#ff7a3d)}
+  .timeline span{font-size:8px;color:#8da0ff;white-space:nowrap}
+  .total{text-align:center;margin:0 14px;padding:6px;border:1px solid #2a3a7a;border-radius:999px;font-size:10px;color:#b9ccff;background:#0a0f2e}
+  /* quick 5 steps */
+  .quick{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:12px 14px 0}
+  .step{border-radius:14px;padding:12px 10px;border:1px solid #2a3a80;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.2));position:relative}
+  .step .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:14px;color:#fff;margin-bottom:6px}
+  .s1 .num{background:#8a5cff}.s2 .num{background:#1a8cff}.s3 .num{background:#00bfa5}.s4 .num{background:#ffb300;color:#1a1200}.s5 .num{background:#b06cff}
+  .step h5{font-size:11px;line-height:1.2}
+  .step h5 span{color:var(--c)}
+  .s1{--c:#b07cff}.s2{--c:#5ae0ff}.s3{--c:#00e5d0}.s4{--c:#ffd24d}.s5{--c:#c080ff}
+  .step ul{margin:8px 0 0 14px;font-size:9px;line-height:1.5;color:#d6e0ff}
+  .arrow{position:absolute;right:-10px;top:42%;width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:10px solid #3a4bff;filter:drop-shadow(0 0 6px rgba(90,110,255,.8));z-index:2}
+  @media(max-width:900px){.roadmap{grid-template-columns:repeat(2,1fr)}.quick{grid-template-columns:1fr}.arrow{display:none}}
+  /* architecture */
+  .arch{margin:12px 14px;border:1px solid #243070;border-radius:14px;padding:10px;background:#0a0f2e}
+  .arch h3{text-align:center;font-size:11px;letter-spacing:.18em;color:#8fb0ff}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+  .node{border:1px solid #2a3a80;border-radius:12px;padding:8px;text-align:center;background:#0f1740}
+  .node h6{font-size:9px;letter-spacing:.08em;color:#8fb0ff}
+  .node p{font-size:8.5px;line-height:1.4;color:#d6e0ff;margin-top:4px}
+  .node b{color:#fff}
+  .bar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 14px;background:#0a0f2e;border:1px solid #243070;border-radius:12px;padding:8px}
+  .bar span{font-size:9px;text-align:center;color:#b9ccff}
+  .bar b{color:#fff;display:block;font-size:10px}
+  /* footer */
+  footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid #1b2250;color:#8da0ff;font-size:9px}
+  footer b{color:#b9ccff}
+</style>
+</head>
+<body>
+<div class="poster">
+  <header>
+    <div class="brand">
+      <div class="brain">🧠</div>
+      <div>
+        <h1>AI BRIDGE <span>AGENT V2</span></h1>
+        <div class="subtitle"><b>Universal AI Conversation Transfer</b> — Powered by <span style="color:#b07cff">Omni</span><span style="color:#5ae0ff">Route</span> (358 Providers, One API). <span style="color:#8fb0ff">Never lose your conversation again.</span></div>
+        <div class="subtitle" style="font-size:10px">Image 1 roadmap + Image 2 “300+ models, one API” idea → remapped to OmniRoute 358 providers, 1.62B free tokens, 19 strategies</div>
+      </div>
+    </div>
+    <div class="supported">
+      <h3>358 PROVIDERS VIA OmniRoute — ONE ENDPOINT</h3>
+      <div class="providers">
+        <div class="pill"><i style="background:#ff6b35">✳</i><strong>Claude</strong><em>Anthropic</em></div>
+        <div class="pill"><i style="background:#0ea568">◉</i><strong>GPT</strong><em>OpenAI</em></div>
+        <div class="pill"><i style="background:#1a73e8">✦</i><strong>Gemini</strong><em>Google</em></div>
+        <div class="pill"><i style="background:#6b4eff">∞</i><strong>Llama</strong><em>Meta</em></div>
+        <div class="pill"><i style="background:#2a3a8a">🐋</i><strong>DeepSeek</strong><em>DeepSeek</em></div>
+        <div class="pill badge-more"><strong>+353 more</strong><em>Kimi · Grok · GLM · Mistral...</em></div>
+      </div>
+      <div style="text-align:center;margin-top:6px;font-size:9px;color:#8fb0ff"><span class="or">ONE API</span> → http://localhost:20128/v1 · model: "auto"</div>
+    </div>
+  </header>
+
+  <div class="section-title">— COMPLETE SUCCESS ROADMAP V2 —</div>
+  <div class="roadmap">
+    <div class="phase ph1">
+      <small>PHASE 1 — 2-4 WEEKS</small>
+      <h4>🛰️ FOUNDATION</h4>
+      <ul>
+        <li>HTML, CSS, JS, DOM</li>
+        <li>Chrome Extension Basics</li>
+        <li><b>OmniRoute basics: /v1, auto</b></li>
+        <li>Understand 358 providers</li>
+      </ul>
+      <div class="out">OUTPUT: <b>Extension basics ready</b></div>
+    </div>
+    <div class="phase ph2">
+      <small>PHASE 2 — 2-3 WEEKS</small>
+      <h4>🧩 MVP PROTOTYPE</h4>
+      <ul>
+        <li>Extract ChatGPT conversation</li>
+        <li>Save & Copy messages</li>
+        <li><b>One fetch → any of 358</b></li>
+        <li>Manual transfer working</li>
+      </ul>
+      <div class="out">OUTPUT: <b>Basic transfer (ChatGPT → any)</b></div>
+    </div>
+    <div class="phase ph3">
+      <small>PHASE 3 — 4 WEEKS</small>
+      <h4>🤖 AUTOMATION ENGINE</h4>
+      <ul>
+        <li>Playwright + automation</li>
+        <li>Auto open / paste / send</li>
+        <li><b>API + browser hybrid</b></li>
+        <li>One-click transfer</li>
+      </ul>
+      <div class="out">OUTPUT: <b>One-click auto transfer</b></div>
+    </div>
+    <div class="phase ph4">
+      <small>PHASE 4 — 1-2 MONTHS</small>
+      <h4>🧠 SMART AI ENGINE</h4>
+      <ul>
+        <li>LangChain & NLP</li>
+        <li><b>RTK+Caveman 15–95%</b></li>
+        <li><b>Vector DB (Qdrant) + FTS5</b></li>
+        <li>16-factor Auto router</li>
+      </ul>
+      <div class="out">OUTPUT: <b>Smart memory engine</b></div>
+    </div>
+    <div class="phase ph5">
+      <small>PHASE 5 — 1 WEEK ⚡</small>
+      <h4>🔀 MULTI-AI (OmniRoute)</h4>
+      <ul>
+        <li><b>ONE integration = 358</b></li>
+        <li>model: "auto" + 19 strategies</li>
+        <li>auto/coding · fast · cheap</li>
+        <li>No per-platform work</li>
+      </ul>
+      <div class="out">OUTPUT: <b>Universal transfer (358)</b></div>
+    </div>
+    <div class="phase ph6">
+      <small>PHASE 6 — 2-4 MONTHS</small>
+      <h4>⭐ ADVANCED AGENT (SaaS)</h4>
+      <ul>
+        <li>Auth, Cloud Sync, History</li>
+        <li>Real-time & cross-device</li>
+        <li><b>MCP 110 tools + A2A</b></li>
+        <li>Team / Workspace</li>
+      </ul>
+      <div class="out">OUTPUT: <b>Full Agent Ecosystem</b></div>
+    </div>
+  </div>
+  <div class="timeline"><span>2–4 WEEKS</span><div class="line"></div><span>2–3 WEEKS</span><div class="line"></div><span>4 WEEKS</span><div class="line"></div><span>1–2 MONTHS</span><div class="line"></div><span>1 WEEK</span><div class="line"></div><span>2–4 MONTHS</span></div>
+  <div class="total">TOTAL TIME: 6 – 12 MONTHS · Phase 5 collapsed from 2 months → 1 week via OmniRoute</div>
+
+  <div class="section-title">— 5-STEP QUICKSTART (FROM IMAGE 2 → REMAPPED TO OmniRoute) —</div>
+  <div class="quick">
+    <div class="step s1"><div class="num">1</div><h5>Get <span>OmniRoute.</span></h5>
+      <ul><li>npm i -g omniroute</li><li>Boots on :20128</li><li>auto works with 0 keys</li></ul><div class="arrow"></div></div>
+    <div class="step s2"><div class="num">2</div><h5>Refactor the <span>Backend.</span></h5>
+      <ul><li>Replace per-platform calls</li><li>Point to /v1/chat/completions</li><li>Switch via one param</li></ul><div class="arrow"></div></div>
+    <div class="step s3"><div class="num">3</div><h5>Build a Smart <span>AI Router.</span></h5>
+      <ul><li>Analyze query type</li><li>Auto-select best of 358</li><li>16-factor scoring</li></ul><div class="arrow"></div></div>
+    <div class="step s4"><div class="num">4</div><h5>Connect the <span>Memory Layer.</span></h5>
+      <ul><li>Qdrant + FTS5 storage</li><li>Carry context across models</li><li>No loss on switch</li></ul><div class="arrow"></div></div>
+    <div class="step s5"><div class="num">5</div><h5>Launch Your <span>AI Bridge Agent.</span></h5>
+      <ul><li>Multi-model chat</li><li>Smarter, faster</li><li>One agent, endless</li></ul></div>
+  </div>
+
+  <div class="arch">
+    <h3>SYSTEM ARCHITECTURE — 6 STEPS (MERGED)</h3>
+    <div class="flow">
+      <div class="node"><h6>1. SOURCE AI</h6><p><b>ChatGPT · Claude</b><br/>User Chats</p></div>
+      <div class="node"><h6>2. BROWSER EXT</h6><p><b>Extract · Monitor</b><br/>Limit/Status</p></div>
+      <div class="node"><h6>3. MEMORY ENGINE</h6><p><b>Qdrant · FTS5</b><br/>RTK 95% compress</p></div>
+      <div class="node"><h6>4. OmniRoute ROUTER</h6><p><b>auto / 16 factors</b><br/>Best of 358</p></div>
+      <div class="node"><h6>5. OmniRoute EXEC</h6><p><b>4-tier fallback</b><br/>Circuit breaker</p></div>
+      <div class="node"><h6>6. TARGET AI</h6><p><b>+353 more</b><br/>Any provider</p></div>
+    </div>
+    <div style="text-align:center;font-size:9px;color:#8fb0ff;margin-top:6px">↕ All ↔ Database / Cloud Storage — Save Conversations · User Data · Settings · History (SQLite 183 migrations + Qdrant + Redis)</div>
+  </div>
+
+  <div class="bar">
+    <span><b>⚡ ONE API</b>358 Providers</span>
+    <span><b>🔗 LESS COMPLEXITY</b>No multiple integrations</span>
+    <span><b>🧠 SMARTER CHOICES</b>16-factor auto-select</span>
+    <span><b>💾 BETTER CONTEXT</b>95% compression, no loss</span>
+    <span><b>🚀 BUILT FOR SCALE</b>Future-ready</span>
+    <span><b>💰 $0 TO START</b>1.62B free tokens/mo</span>
+  </div>
+
+  <footer>
+    <span>START SMALL. BUILD BIG. IMPACT MILLIONS.</span>
+    <span><b>ONE AGENT / MANY MODELS / ENDLESS POSSIBILITIES</b> — THE FUTURE OF AI IS CONNECTION. Via OmniRoute, not OpenRouter.</span>
+  </footer>
+</div>
+<p style="text-align:center;color:#6b7ab0;font-size:10px;margin:10px">Source files: docs/AI_BRIDGE_AGENT_OMNIROUTE_V2.md (full spec) + this HTML (visual poster). Open this HTML in Chrome → screenshot for new image.</p>
+</body>
+</html>

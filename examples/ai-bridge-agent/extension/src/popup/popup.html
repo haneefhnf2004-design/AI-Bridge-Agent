@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Bridge Agent</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="hdr">
+      <div class="logo">
+        <div class="orb"></div>
+        <div>
+          <div class="title">AI BRIDGE AGENT <span class="v2">V2</span></div>
+          <div class="subtitle">Bridge Engine · Universal AI Network · 1000+ Models · 1.62B free tokens/mo</div>
+        </div>
+      </div>
+      <div class="hdr-actions">
+        <span id="healthDot" class="dot dot--off" title="Bridge Engine health"></span>
+        <a id="dashLink" class="icon-btn" title="Open Dashboard" href="#" aria-label="Dashboard">◧</a>
+      </div>
+    </header>
+
+    <section class="status-card" id="statusCard">
+      <div class="status-left">
+        <div class="label">SOURCE DETECTED</div>
+        <div class="source-row">
+          <span id="siteBadge" class="badge badge--unknown">Detecting…</span>
+          <span id="siteTitle" class="site-title">—</span>
+        </div>
+        <div id="metaLine" class="meta">—</div>
+      </div>
+      <button id="extractBtn" class="btn btn--ghost">↻ Re-extract</button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Conversation</span>
+        <span id="msgCount" class="count">0 messages</span>
+      </div>
+      <div id="preview" class="preview"><div class="hint">Extracting conversation from current tab…</div></div>
+      <div id="tokenLine" class="token-line"></div>
+    </section>
+
+    <section class="panel">
+      <div class="label">TARGET MODEL (Bridge Engine)</div>
+      <div class="select-wrap">
+        <select id="modelSelect" class="select"></select>
+      </div>
+      <div id="routeExplain" class="explain"></div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="cheapCheck" /> Cheapest</label>
+        <label class="check"><input type="checkbox" id="compressCheck" checked /> RTK + Caveman</label>
+      </div>
+      <button id="transferBtn" class="btn btn--primary">
+        <span class="btn-label">⚡ Transfer via Bridge Engine</span>
+        <span class="btn-sub">Auto-Combo · 16-factor routing · 3-layer resilience</span>
+      </button>
+      <div id="progress" class="progress hidden">
+        <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+        <div id="progressText" class="progress-text">Routing…</div>
+      </div>
+    </section>
+
+    <section id="resultPanel" class="panel hidden">
+      <div class="panel-head"><span class="panel-title">Result</span><span id="resultMeta" class="count"></span></div>
+      <pre id="resultText" class="result"></pre>
+      <div class="result-actions">
+        <button id="copyBtn" class="btn btn--ghost small">Copy</button>
+        <button id="openDashBtn" class="btn btn--ghost small">Open in Dashboard</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-title">History</span><button id="clearHist" class="link">Clear</button></div>
+      <div id="history" class="history"><div class="hint">No transfers yet.</div></div>
+    </section>
+
+    <footer class="foot">
+      <span>Bridge Engine at <code>bridge-engine</code> · Backend <code>:8787</code></span>
+      <span class="foot-links"><a href="#" id="healthLink">Health</a> · <a href="https://github.com" target="_blank" rel="noreferrer">Docs</a></span>
+    </footer>
+  </div>
+<script type="module" src="popup.js"></script>
+</body>
+</html>

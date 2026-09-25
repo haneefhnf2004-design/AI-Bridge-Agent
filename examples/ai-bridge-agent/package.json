@@ -1,0 +1,29 @@
+{
+  "name": "ai-bridge-agent",
+  "version": "2.0.0",
+  "private": true,
+  "description": "AI Bridge Agent V2 — Universal transfer from ChatGPT/Gemini/Claude/Perplexity via Bridge Engine Universal AI Network & 1000+ models",
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace backend run dev",
+    "start:backend": "npm --workspace backend start",
+    "build:extension": "node scripts/build-extension.js",
+    "zip:extension": "node scripts/zip-extension.js",
+    "lint": "eslint extension/src backend/src web-dashboard --ext .js",
+    "format": "prettier --write \"**/*.{js,json,css,html,md}\""
+  },
+  "keywords": [
+    "ai-bridge",
+    "bridge",
+    "chrome-extension",
+    "ai-router",
+    "openrouter-alternative"
+  ],
+  "author": "AI Bridge Labs",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

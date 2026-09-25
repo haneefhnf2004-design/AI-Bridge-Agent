@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP — AI Bridge Agent · Bridge Engine</title>
+<meta name="theme-color" content="#0B0F19" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="app.css" />
+<script>try{var t=localStorage.getItem('aibridge_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}</script>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+
+</head>
+<body>
+<div class="bg"></div>
+<button class="side-toggle" id="hamburger" aria-label="menu">☰</button>
+<aside class="side-nav" id="navLinks">
+  <a class="side-brand" href="/">
+    <div class="orb"></div>
+    <div><div class="bt">AI Bridge Agent <span class="pill">v2.0.0</span></div><div class="sub">Bridge Engine · MCP 110 tools</div></div>
+  </a>
+  <nav class="side-links">
+    <a href="/" class="side-link"><span class="sic">⌂</span>Home</a>
+    <a href="/chat" class="side-link"><span class="sic">💬</span>Chat</a>
+    <a href="/models" class="side-link"><span class="sic">◈</span>Models</a>
+    <a href="/providers" class="side-link"><span class="sic">⛁</span>Providers</a>
+    <a href="/resilience" class="side-link"><span class="sic">♥</span>Resilience</a>
+    <a href="/mcp" class="side-link active"><span class="sic">🔧</span>MCP</a>
+    <a href="/#bridge" class="side-link"><span class="sic">🌉</span>Bridge</a>
+    <div class="side-label">System</div>
+    <a href="/api/mcp/tools" target="_blank" class="side-link"><span class="sic">●</span>MCP API</a>
+  </nav>
+  <div class="side-foot">
+    <div class="side-health"><span id="sideHealthDot" class="dot dot--off"></span><span id="sideHealthText" class="health-text">Checking…</span></div>
+    <div class="side-foot-row">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+      <a class="btn primary small" href="/chat">Start Chatting →</a>
+    </div>
+  </div>
+</aside>
+<div class="main">
+<div class="crumbs"><a href="/">Dashboard</a> / MCP</div>
+<div class="page-head">
+  <div><h1>MCP Tools</h1><p>Bridge Engine MCP Server · 45 canonical + memory/skill/GitHub/pool · 3 transports (stdio/SSE/Streamable HTTP)</p></div>
+  <div class="actions"><span class="op-pill">● <span id="mcpHeadCount">110 tools</span></span><button id="mcpSearchBtnTop" class="btn-test">Search</button></div>
+</div>
+<div class="stats-row" id="mcpStats" style="max-width:1200px;margin:10px auto 0;padding:0 18px;justify-content:flex-start"></div>
+
+<div style="max-width:1200px;margin:14px auto 0;padding:0 18px;display:flex;gap:8px;flex-wrap:wrap">
+  <input id="mcpSearch" placeholder="Search tools — name/desc/scope (try 'memory', 'github', 'pool')…" style="flex:1;min-width:220px;background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px" />
+  <select id="scopeFilter" style="background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px"><option value="">All scopes (33)</option></select>
+  <button id="mcpSearchBtn" class="btn primary small">Search</button>
+</div>
+
+<div style="max-width:1200px;margin:12px auto;padding:0 18px;display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
+  <div class="card">
+    <div class="card-head"><h2>Tools</h2><span class="hint" id="mcpCount">—</span></div>
+    <div id="toolsList" style="display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow:auto"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Try-It Console</h2><span class="hint">POST /api/mcp/call</span></div>
+    <label class="field"><span>Tool name</span><input id="tryTool" placeholder="memory_recall" /></label>
+    <label class="field"><span>Arguments (JSON)</span><textarea id="tryArgs" rows="6" placeholder='{"query":"hello"}'></textarea></label>
+    <button id="tryBtn" class="btn primary xl">Call Tool →</button>
+    <pre id="tryOut" class="codeblock" style="margin-top:10px;max-height:360px"></pre>
+    <details class="details" style="margin-top:10px"><summary>Scopes (33)</summary><div id="scopesList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div></details>
+  </div>
+</div>
+
+<footer class="foot">
+  <span>AI Bridge Agent V2 — <a href="/api/mcp/tools" target="_blank">API</a> · <a href="/resilience">Resilience</a> · <a href="/providers">Providers</a></span>
+  <span>Bridge Engine MCP · 110 tools</span>
+</footer>
+</div>
+
+<script type="module">
+const $=s=>document.querySelector(s);
+const mcpSearch=$('#mcpSearch'), scopeFilter=$('#scopeFilter'), mcpSearchBtn=$('#mcpSearchBtn');
+const toolsList=$('#toolsList'), mcpCount=$('#mcpCount'), mcpStats=$('#mcpStats'), scopesList=$('#scopesList');
+const tryTool=$('#tryTool'), tryArgs=$('#tryArgs'), tryBtn=$('#tryBtn'), tryOut=$('#tryOut');
+
+function renderTools(tools){
+  toolsList.innerHTML = tools.map(t=> `<div class="tool ocard">
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>${t.name}</b><span class="badge">${t.scope}</span></div>
+    <div class="hint">${t.description}</div>
+    <div style="display:flex;gap:6px;margin-top:6px"><span class="badge">${t.category}</span><button class="btn ghost small" data-try="${t.name}">Try</button></div>
+  </div>`).join('') || '<div class="hint">No tools match.</div>';
+  toolsList.querySelectorAll('[data-try]').forEach(b=> b.addEventListener('click', ()=>{
+    tryTool.value=b.getAttribute('data-try');
+    const t=tools.find(x=> x.name===b.getAttribute('data-try'));
+    tryArgs.value= t?.inputSchema?.required?.length ? JSON.stringify(Object.fromEntries(t.inputSchema.required.map(k=> [k, k==='query'?'hello': k==='q'?'ai': 'demo'])), null, 2) : '{}';
+    tryOut.textContent='Ready — click Call Tool';
+  }));
+}
+
+async function load(){
+  let j;
+  try{
+    const params=new URLSearchParams();
+    if(mcpSearch.value.trim()) params.set('search', mcpSearch.value.trim());
+    if(scopeFilter.value) params.set('scope', scopeFilter.value);
+    params.set('limit','100');
+    const r=await fetch('/api/mcp/tools?'+params.toString());
+    j=await r.json();
+  }catch{
+    toolsList.innerHTML='<div class="hint">Could not reach backend (:8787) — start it with npm --workspace backend run dev.</div>';
+    mcpCount.textContent='offline';
+    return;
+  }
+  mcpCount.textContent = `${j.returned} / ${j.count} tools`;
+  mcpStats.innerHTML = `<span class="stat"><b>${j.stats?.total||110}</b> tools</span><span class="stat"><b>${j.stats?.scopes||33}</b> scopes</span><span class="stat">transports: ${(j.stats?.transports||[]).join(' / ')}</span>`;
+  const hc=document.getElementById('mcpHeadCount'); if(hc) hc.textContent=`${j.count??110} tools`;
+  const sd=document.getElementById('sideHealthDot'),st=document.getElementById('sideHealthText');
+  if(sd&&st){sd.className='dot dot--on';st.textContent=`${j.count??110} tools live`;}
+  renderTools(j.tools||[]);
+  // scopes filter options once
+  if(scopeFilter.options.length<=1 && j.scopes?.length){
+    for(const s of j.scopes){ const o=document.createElement('option'); o.value=s.scope; o.textContent=`${s.scope} (${s.count})`; scopeFilter.appendChild(o); }
+    scopesList.innerHTML = j.scopes.map(s=> `<span class="badge">${s.scope} · ${s.count}</span>`).join('');
+  }
+}
+
+async function call(){
+  const name=tryTool.value.trim();
+  if(!name) { tryOut.textContent='Enter tool name'; return; }
+  let args={};
+  const raw=tryArgs.value.trim();
+  if(raw){ try{ args=JSON.parse(raw); }catch{ tryOut.textContent='Invalid JSON in arguments'; return; } }
+  tryBtn.disabled=true; tryOut.textContent='Calling…';
+  try{
+    const r=await fetch('/api/mcp/call', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, arguments: args }) });
+    const j=await r.json();
+    tryOut.textContent=JSON.stringify(j,null,2);
+  }catch(e){ tryOut.textContent=String(e.message); }
+  finally{ tryBtn.disabled=false; }
+}
+
+mcpSearchBtn.addEventListener('click', ()=> load().catch(()=>{}));
+document.getElementById('mcpSearchBtnTop')?.addEventListener('click', ()=> load().catch(()=>{}));
+mcpSearch.addEventListener('keydown', e=>{ if(e.key==='Enter') load().catch(()=>{}); });
+scopeFilter.addEventListener('change', ()=> load().catch(()=>{}));
+tryBtn.addEventListener('click', call);
+document.getElementById('hamburger')?.addEventListener('click', ()=> document.getElementById('navLinks')?.classList.toggle('open'));
+load().catch(()=>{});
+</script>
+</body>
+</html>

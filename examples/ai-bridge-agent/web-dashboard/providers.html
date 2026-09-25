@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Providers — AI Bridge Agent · Bridge Engine</title>
+<meta name="theme-color" content="#0B0F19" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="app.css" />
+<script>try{var t=localStorage.getItem('aibridge_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}</script>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+
+</head>
+<body>
+<div class="bg"></div>
+<button class="side-toggle" id="hamburger" aria-label="menu">☰</button>
+<aside class="side-nav" id="navLinks">
+  <a class="side-brand" href="/">
+    <div class="orb"></div>
+    <div><div class="bt">AI Bridge Agent <span class="pill">v2.0.0</span></div><div class="sub">Bridge Engine · 358 providers</div></div>
+  </a>
+  <nav class="side-links">
+    <a href="/" class="side-link"><span class="sic">⌂</span>Home</a>
+    <a href="/chat" class="side-link"><span class="sic">💬</span>Chat</a>
+    <a href="/models" class="side-link"><span class="sic">◈</span>Models</a>
+    <a href="/providers" class="side-link active"><span class="sic">⛁</span>Providers</a>
+    <a href="/resilience" class="side-link"><span class="sic">♥</span>Resilience</a>
+    <a href="/mcp" class="side-link"><span class="sic">🔧</span>MCP</a>
+    <a href="/#bridge" class="side-link"><span class="sic">🌉</span>Bridge</a>
+    <div class="side-label">System</div>
+    <a href="/api/providers" target="_blank" class="side-link"><span class="sic">●</span>Providers API</a>
+  </nav>
+  <div class="side-foot">
+    <div class="side-health"><span id="sideHealthDot" class="dot dot--off"></span><span id="sideHealthText" class="health-text">Checking…</span></div>
+    <div class="side-foot-row">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+      <a class="btn primary small" href="/chat">Start Chatting →</a>
+    </div>
+  </div>
+</aside>
+<div class="main">
+<div class="crumbs"><a href="/">Dashboard</a> / Providers</div>
+<div class="page-head">
+  <div><h1>Providers</h1><p>Bridge Engine universal catalog · <b id="freeCount">—</b> free tiers · <b id="totalTokens">—</b> free tokens/mo · 1312 chat models · 35 pool keys</p></div>
+  <div class="actions"><span class="op-pill">● All models operational</span><button id="searchBtnTop" class="btn-test">Test All</button></div>
+</div>
+<div class="stats-row" id="provStats" style="max-width:1200px;margin:10px auto 0;padding:0 18px;justify-content:flex-start"></div>
+
+<div class="searchbar">
+  <input id="provSearch" placeholder="Search providers — name, id, capability (try 'vision', 'code', 'fast')…" />
+  <select id="freeFilter"><option value="">All providers</option><option value="free">Free tier only</option></select>
+  <select id="capFilter"><option value="">Any capability</option><option value="vision">Vision</option><option value="code">Code</option><option value="fast">Fast</option><option value="reasoning">Reasoning</option><option value="tools">Tools</option></select>
+  <select id="sortSel"><option value="name">Sort: Name</option><option value="models">Sort: Models</option><option value="pricing">Sort: Cheapest</option></select>
+  <button id="searchBtn" class="btn primary small">Search</button>
+</div>
+
+<div style="max-width:1200px;margin:14px auto 0;padding:0 18px"><div class="section-head"><span class="sdot"></span>OAuth Providers</div></div>
+<div id="providersGrid" class="models-grid ocard-grid"></div>
+
+<div class="pager">
+  <div class="hint" id="pageInfo">—</div>
+  <div style="display:flex;gap:8px">
+    <button id="prevBtn" class="btn ghost small">← Prev</button>
+    <button id="nextBtn" class="btn ghost small">Next →</button>
+  </div>
+</div>
+
+<section class="card" style="max-width:1200px;margin:12px auto">
+  <div class="card-head"><h2>Free Tiers Budget Calculator</h2><span class="hint">Sum of free-tier tokensPerMonth ≈ 1.62B</span></div>
+  <div id="freeCalc" class="hint">Loading…</div>
+</section>
+
+<footer class="foot">
+  <span>AI Bridge Agent V2 — <a href="/providers">Providers</a> · <a href="/resilience">Resilience</a> · <a href="/mcp">MCP</a> · <a href="/api/providers">API</a></span>
+  <span>Bridge Engine · 358 providers · 1312 models</span>
+</footer>
+</div>
+
+<script type="module">
+const $=s=>document.querySelector(s);
+const provSearch=$('#provSearch'), freeFilter=$('#freeFilter'), capFilter=$('#capFilter'), sortSel=$('#sortSel'), searchBtn=$('#searchBtn');
+const grid=$('#providersGrid'), pageInfo=$('#pageInfo'), prevBtn=$('#prevBtn'), nextBtn=$('#nextBtn');
+const freeCount=$('#freeCount'), totalTokens=$('#totalTokens'), provStats=$('#provStats'), freeCalc=$('#freeCalc');
+let page=1, limit=20, lastTotal=0, lastPages=1;
+
+function card(p){
+  const freeBadge = p.free ? `<span class="pfree">Free</span>` : '';
+  const connPill = p.free ? `<span class="conn-pill">● 1 Connected</span>` : `<span class="conn-pill none">No connections</span>`;
+  const vision = p.caps?.includes('vision')? `<span class="badge code">Vision</span>`: '';
+  const code = p.caps?.includes('code')? `<span class="badge code">Code</span>`: '';
+  const models = (p.models||[]).slice(0,4).map(m=> `<code style="background:var(--card2);padding:2px 6px;border-radius:6px;font-size:10px">${m}</code>`).join(' ');
+  return `<div class="pcard ocard">
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="micon" style="background:${p.free?'#2563EB':'#475569'}">${(p.name||p.id)[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0"><div class="mname">${p.name} <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${p.free?'#4ADE80':'#64748B'}"></span> <span class="hint">${p.id}</span></div><div class="mprov">${(p.caps||[]).join(' · ')} · ${(p.context||0).toLocaleString()} ctx · $${p.pricing?.in??'?'} /1M</div></div>
+      ${freeBadge}
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${connPill}</div>
+    <div class="hint">${p.models?.length||p.modelCount||0} models · ${p.status||'available'} ${p.freeTier?`· ${((p.freeTier.tokensPerMonth||0)/1e6).toFixed(2)}M free/mo`:''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${vision}${code}<span class="badge">${p.authType}</span></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${models}${(p.models?.length||0)>4?`<span class="hint">+${(p.models.length-4)} more</span>`:''}</div>
+  </div>`;
+}
+
+async function load(){
+  let j;
+  try{
+    const params=new URLSearchParams({
+      search: provSearch.value.trim(),
+      cap: capFilter.value,
+      sort: sortSel.value,
+      page: String(page),
+      limit: String(limit),
+    });
+    if(freeFilter.value==='free') params.set('free','true');
+    const r=await fetch('/api/providers?'+params.toString());
+    j=await r.json();
+  }catch(e){
+    grid.innerHTML = '<div class="hint">Could not reach backend (:8787) — start it with npm --workspace backend run dev.</div>';
+    pageInfo.textContent = 'offline';
+    return;
+  }
+  lastTotal=j.total; lastPages=j.totalPages;
+  grid.innerHTML = (j.data||[]).map(card).join('') || '<div class="hint">No providers match.</div>';
+  pageInfo.textContent = `Page ${j.page} / ${j.totalPages} · ${j.total} providers · ${j.stats?.models||1312} models`;
+  prevBtn.disabled = j.page<=1;
+  nextBtn.disabled = j.page>=j.totalPages;
+  if(j.stats){
+    freeCount.textContent = `${j.stats.freeTiers} free`;
+    totalTokens.textContent = `${(j.stats.totalTokensApprox/1e9).toFixed(2)}B`;
+    provStats.innerHTML = `<span class="stat"><b>${j.stats.providers}</b> providers</span><span class="stat"><b>${j.stats.models}</b> models</span><span class="stat"><b>${j.stats.freeTiers}</b> free tiers</span><span class="stat"><b>${(j.stats.totalTokensApprox/1e9).toFixed(2)}B</b> free tokens/mo</span>`;
+  }
+  const sd=document.getElementById('sideHealthDot'),st=document.getElementById('sideHealthText');
+  if(sd&&st){sd.className='dot dot--on';st.textContent=`${j.total??'—'} providers live`;}
+}
+
+async function loadFree(){
+  let j;
+  try{
+    const r=await fetch('/api/free-tiers'); j=await r.json();
+  }catch{ freeCalc.textContent='Could not reach backend (:8787).'; return; }
+  freeCalc.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+      <div><b>${j.providers}</b> free-tier providers</div>
+      <div><b>${j.entries}</b> free-tier entries</div>
+      <div><b>${(j.scaledTotalTokensPerMonth/1e9).toFixed(2)}B</b> tokens/mo</div>
+      <div><b>35</b> pool keys</div>
+    </div>
+    <div class="hint" style="margin-top:8px">${j.note}</div>
+    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${(j.topFreeProviders||[]).map(p=> `<span class="badge free">${p.id} · ${(p.tokensPerMonth/1e6).toFixed(1)}M</span>`).join('')}</div>
+  `;
+  freeCount.textContent = `${j.providers} free`;
+  totalTokens.textContent = `${(j.scaledTotalTokensPerMonth/1e9).toFixed(2)}B`;
+}
+
+searchBtn.addEventListener('click', ()=>{ page=1; load(); });
+document.getElementById('searchBtnTop')?.addEventListener('click', ()=>{ page=1; load(); });
+provSearch.addEventListener('keydown', e=>{ if(e.key==='Enter'){ page=1; load(); }});
+freeFilter.addEventListener('change', ()=>{ page=1; load(); });
+capFilter.addEventListener('change', ()=>{ page=1; load(); });
+sortSel.addEventListener('change', ()=>{ page=1; load(); });
+prevBtn.addEventListener('click', ()=>{ if(page>1){ page--; load(); }});
+nextBtn.addEventListener('click', ()=>{ if(page<lastPages){ page++; load(); }});
+document.getElementById('hamburger')?.addEventListener('click', ()=> document.getElementById('navLinks')?.classList.toggle('open'));
+const q=new URLSearchParams(location.search);
+if(q.get('free')) freeFilter.value='free';
+if(q.get('q')) provSearch.value=q.get('q');
+load(); loadFree();
+</script>
+</body>
+</html>

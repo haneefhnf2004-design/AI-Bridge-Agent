@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chat — AI Bridge Agent</title>
+<meta name="theme-color" content="#0B0F19" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="app.css" />
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<script>try{var t=localStorage.getItem('aibridge_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}</script>
+</head>
+<body>
+<div class="bg"></div>
+<button class="side-toggle" id="hamburger2" aria-label="menu">☰</button>
+<aside class="side-nav" id="navLinks2">
+  <a class="side-brand" href="/">
+    <div class="orb"></div>
+    <div><div class="bt">AI Bridge Agent <span class="pill">v2.0.0</span></div><div class="sub">Chat</div></div>
+  </a>
+  <nav class="side-links">
+    <a href="/" class="side-link"><span class="sic">⌂</span>Home</a>
+    <a href="/chat" class="side-link active"><span class="sic">💬</span>Chat</a>
+    <a href="/models" class="side-link"><span class="sic">◈</span>Models</a>
+    <a href="/providers" class="side-link"><span class="sic">⛁</span>Providers</a>
+    <a href="/resilience" class="side-link"><span class="sic">♥</span>Resilience</a>
+    <a href="/mcp" class="side-link"><span class="sic">🔧</span>MCP</a>
+    <a href="/#bridge" class="side-link"><span class="sic">🌉</span>Bridge</a>
+    <div class="side-label">System</div>
+    <a href="/api/health" target="_blank" class="side-link"><span class="sic">●</span>API</a>
+  </nav>
+  <div class="side-foot">
+    <div class="side-health"><span id="sideHealthDot" class="dot dot--off"></span><span id="sideHealthText" class="health-text">Checking…</span></div>
+    <div class="side-foot-row">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+      <a class="btn ghost small" href="/models">Models</a>
+    </div>
+  </div>
+</aside>
+<div class="main">
+<div class="crumbs"><a href="/">Dashboard</a> / Chat</div>
+<div class="chat-layout">
+  <aside class="chat-side" id="chatSide">
+    <button id="newChatBtn" class="new-chat-btn">＋ New chat</button>
+
+    <label class="field" style="margin-top:0"><span>Model</span>
+      <select id="chatModelSel" class="model-select"></select>
+    </label>
+    <div id="chatModelInfo" class="hint" style="min-height:14px"></div>
+    <div id="typingDetails" class="hint" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;line-height:1.5"></div>
+
+    <div style="display:flex;gap:6px">
+      <button id="bridgeImportBtn" class="btn ghost small" style="flex:1">Import chat</button>
+      <button id="exportBtn" class="btn ghost small">Export</button>
+    </div>
+
+    <div class="side-head" style="margin-top:6px"><b>History</b><button id="clearHistBtn" class="btn ghost small" style="padding:4px 8px;font-size:11px;border:none">Clear</button></div>
+    <div id="histList" class="hist-list"></div>
+
+    <div class="hint" style="margin-top:auto;padding-top:8px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:6px"><span id="healthDot2" class="dot dot--off"></span><span id="healthText2" class="health-text">Checking…</span></div>
+      <div id="tokenInfo" class="hint" style="margin-top:6px">0 messages · 0 tokens</div>
+      <div style="margin-top:6px"><a href="/models" style="color:var(--muted);text-decoration:none">Browse models →</a></div>
+    </div>
+  </aside>
+
+  <section class="chat-main">
+    <div class="chat-topbar"><span id="chatModelName">AI Bridge Agent</span></div>
+    <div id="chatStream" class="chat-stream">
+      <div class="bubble system">Welcome to <b>AI Bridge Agent</b> — pick a model, type a message, or import a chat to continue here.</div>
+    </div>
+    <div class="chat-input-wrap">
+      <div class="chat-input-bar">
+        <button id="toggleSideBtn" class="icon-btn" title="History" style="display:none">☰</button>
+        <textarea id="chatInput" rows="1" placeholder="Message AI Bridge…"></textarea>
+        <button class="icon-btn" id="attachBtn" title="Attach">＋</button>
+        <button id="sendBtn" class="send-btn" title="Send">↑</button>
+      </div>
+      <div style="padding:8px 4px 0;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="prompt-chip" data-prompt="Explain quantum computing like I'm 10">Explain quantum computing</button>
+        <button class="prompt-chip" data-prompt="Write a Python function to debounce an API call">Debounce function</button>
+        <button class="prompt-chip" data-prompt="Summarize the pros and cons of microservices vs monolith">Microservices vs monolith</button>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- Bridge import modal -->
+<div id="bridgeModal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.4);align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:16px;max-width:560px;width:100%;padding:20px;box-shadow:var(--shadow-lg)">
+    <div style="display:flex;justify-content:space-between;align-items:center"><b>Import chat</b><button id="closeBridgeModal" class="btn ghost small">✕</button></div>
+    <p class="hint">Paste conversation JSON (messages[]) or plain text.</p>
+    <textarea id="bridgeTextarea" rows="8" placeholder='[{"role":"user","content":"Hello…"}] or plain text' style="width:100%;background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;outline:none;font:13px/1.5 ui-monospace,monospace"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button id="doBridgeImport" class="btn primary" style="flex:1">Import &amp; continue</button>
+      <button id="bridgeExampleBtn" class="btn ghost">Load example</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){var d=document.getElementById('sideHealthDot'),t=document.getElementById('sideHealthText');if(!d||!t)return;fetch('/api/health').then(function(r){return r.json()}).then(function(j){d.className='dot dot--on';t.textContent=j.bridge_ok?('Bridge OK · '+(j.models??'?')+' models'):'AI Bridge ready';}).catch(function(){d.className='dot dot--off';t.textContent='Offline';});})();
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

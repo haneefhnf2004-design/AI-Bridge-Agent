@@ -1,0 +1,25 @@
+{
+  "name": "AI Bridge Agent — Universal AI Chat",
+  "short_name": "AI Bridge",
+  "description": "Universal AI Chat — Universal AI Network, 1000+ models, bridge any chat across ChatGPT, Claude, Gemini.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "orientation": "any",
+  "icons": [
+    { "src": "/logo.svg", "sizes": "192x192 512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "New Chat", "url": "/chat", "description": "Start a new AI chat" },
+    { "name": "Models", "url": "/models", "description": "Browse Universal AI Network" },
+    { "name": "Providers", "url": "/providers", "description": "Explore 358 providers" },
+    { "name": "Resilience", "url": "/resilience", "description": "3-layer resilience live diagram" },
+    { "name": "MCP Tools", "url": "/mcp", "description": "110 MCP tools explorer" },
+    { "name": "Bridge", "url": "/?bridge=1", "description": "Bridge a chat" }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}

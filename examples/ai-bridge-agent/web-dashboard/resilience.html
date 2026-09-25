@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resilience — AI Bridge Agent · Bridge Engine</title>
+<meta name="theme-color" content="#0B0F19" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="app.css" />
+<script>try{var t=localStorage.getItem('aibridge_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}</script>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+
+</head>
+<body>
+<div class="bg"></div>
+<button class="side-toggle" id="hamburger" aria-label="menu">☰</button>
+<aside class="side-nav" id="navLinks">
+  <a class="side-brand" href="/">
+    <div class="orb"></div>
+    <div><div class="bt">AI Bridge Agent <span class="pill">v2.0.0</span></div><div class="sub">Bridge Engine · Resilience</div></div>
+  </a>
+  <nav class="side-links">
+    <a href="/" class="side-link"><span class="sic">⌂</span>Home</a>
+    <a href="/chat" class="side-link"><span class="sic">💬</span>Chat</a>
+    <a href="/models" class="side-link"><span class="sic">◈</span>Models</a>
+    <a href="/providers" class="side-link"><span class="sic">⛁</span>Providers</a>
+    <a href="/resilience" class="side-link active"><span class="sic">♥</span>Resilience</a>
+    <a href="/mcp" class="side-link"><span class="sic">🔧</span>MCP</a>
+    <a href="/#bridge" class="side-link"><span class="sic">🌉</span>Bridge</a>
+    <div class="side-label">System</div>
+    <a href="/api/resilience/status" target="_blank" class="side-link"><span class="sic">●</span>Resilience API</a>
+  </nav>
+  <div class="side-foot">
+    <div class="side-health"><span id="sideHealthDot" class="dot dot--off"></span><span id="sideHealthText" class="health-text">Checking…</span></div>
+    <div class="side-foot-row">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+      <a class="btn primary small" href="/chat">Start Chatting →</a>
+    </div>
+  </div>
+</aside>
+<div class="main">
+<div class="crumbs"><a href="/">Dashboard</a> / Resilience</div>
+<div class="page-head">
+  <div><h1>Resilience</h1><p>Provider Circuit Breaker · Connection Cooldown · Model Lockout — live</p></div>
+  <div class="actions"><span class="op-pill">● All systems operational</span><button id="refreshBtnTop" class="btn-test">Refresh</button></div>
+</div>
+<div class="stats-row" id="summaryRow" style="max-width:1200px;margin:10px auto 0;padding:0 18px;justify-content:flex-start"></div>
+
+<div style="max-width:1200px;margin:12px auto;padding:0 18px;display:grid;gap:12px">
+  <div class="diagram">
+<pre style="margin:0;font:11px/1.5 ui-monospace,monospace;color:var(--text);white-space:pre-wrap">Client → Bridge Engine Router → [Provider Breaker: CLOSED → DEGRADED → OPEN → HALF_OPEN (probe)] → [Connection Cooldown: per-key (5s OAuth / 3s API, x2 backoff, Retry-After)] → [Model Lockout: per-model 429/404] → Executor → Upstream
+States: CLOSED normal · DEGRADED early warning · OPEN blocked · HALF_OPEN probe after reset (60s OAuth / 30s API / 15s local)
+Cooldown: isolates one bad key; only bad connection skipped, others flow. Lockout: avoids disabling whole connection when one model fails.
+All layers lazy-recover: expired breaker/cooldown/lockout becomes eligible without timer.</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Layer 1 — Provider Circuit Breaker</h2><span class="hint">Only 408/5xx trips provider breaker · thresholds OAuth 8x/60s · API 12x/30s · local 2x/15s</span></div>
+    <div id="breakers" class="models-grid ocard-grid"></div>
+  </div>
+
+  <div class="layer">
+    <div class="card">
+      <div class="card-head"><h2>Layer 2 — Connection Cooldown</h2><span class="hint">Per-connection rateLimitedUntil + backoffLevel</span></div>
+      <div id="cooldowns" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Layer 3 — Model Lockout</h2><span class="hint">Per-model 429/404 lockout</span></div>
+      <div id="lockouts" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Raw Status</h2><div style="display:flex;gap:8px"><button id="refreshBtn" class="btn ghost small">Refresh</button><span class="hint" id="at">—</span></div></div>
+    <pre id="raw" class="codeblock" style="max-height:420px"></pre>
+  </div>
+</div>
+
+<footer class="foot">
+  <span>AI Bridge Agent V2 — <a href="/api/resilience/status" target="_blank">API</a> · <a href="/providers">Providers</a> · <a href="/mcp">MCP</a></span>
+  <span>Bridge Engine 3-layer resilience</span>
+</footer>
+</div>
+
+<script type="module">
+const $=s=>document.querySelector(s);
+const summaryRow=$('#summaryRow'), breakers=$('#breakers'), cooldowns=$('#cooldowns'), lockouts=$('#lockouts'), raw=$('#raw'), at=$('#at');
+let timer=null;
+
+function stateBadge(s){ return `<span class="badge-state state-${s}">${s}</span>`; }
+
+async function load(){
+  let j;
+  try{
+    const r=await fetch('/api/resilience/status'); j=await r.json();
+  }catch{
+    raw.textContent='Could not reach backend (:8787) — start it with npm --workspace backend run dev.';
+    at.textContent='offline';
+    return;
+  }
+  at.textContent=j.at||'';
+  raw.textContent=JSON.stringify(j,null,2);
+  const sum=j.summary||{};
+  summaryRow.innerHTML = `<span class="stat"><b>${sum.openBreakers??0}</b> open breakers</span><span class="stat"><b>${sum.coolingConnections??0}</b> cooling connections</span><span class="stat"><b>${sum.lockedModels??0}</b> locked models</span><span class="stat">states: CLOSED · DEGRADED · OPEN · HALF_OPEN</span>`;
+  const sd=document.getElementById('sideHealthDot'),st=document.getElementById('sideHealthText');
+  if(sd&&st){sd.className='dot dot--on';st.textContent=`${sum.openBreakers??0} open · ${sum.coolingConnections??0} cooling`;}
+  // breakers
+  const provs=(j.layers?.circuitBreaker?.providers||[]);
+  breakers.innerHTML = provs.map(p=> `<div class="detail-card ocard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <b>${p.provider}</b>${stateBadge(p.state)}
+    </div>
+    <div class="kv"><span class="hint">failures</span><b>${p.failures}</b></div>
+    <div class="kv"><span class="hint">canExecute</span><b>${p.canExecute?'yes':'no'}</b></div>
+    <div class="kv"><span class="hint">retryAfter</span><b>${p.retryAfterMs? (p.retryAfterMs/1000).toFixed(1)+'s':'—'}</b></div>
+    <div class="hint">profile: ${p.profile?.openAt? `${p.profile.degradeAt}→${p.profile.openAt} / ${p.profile.resetMs/1000}s` : ''}</div>
+  </div>`).join('') || '<div class="hint">No breakers (all CLOSED)</div>';
+
+  // cooldowns
+  const cds=(j.layers?.connectionCooldown?.connections||[]);
+  if(!cds.length) cooldowns.innerHTML='<div class="hint">No cooling connections (all available). Demo shows one cooling for illustration.</div>';
+  else cooldowns.innerHTML = cds.map(c=> `<div class="detail-card">
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>${c.connectionId}</b><span class="badge-state ${c.cooling?'state-DEGRADED':'state-CLOSED'}">${c.cooling?'COOLING':'available'}</span></div>
+    <div class="kv"><span class="hint">provider</span><b>${c.provider||'—'}</b></div>
+    <div class="kv"><span class="hint">retryAfter</span><b>${c.retryAfterMs? (c.retryAfterMs/1000).toFixed(1)+'s':'—'}</b></div>
+    <div class="kv"><span class="hint">backoffLevel</span><b>${c.backoffLevel??0}</b></div>
+    ${c.lastError?`<div class="hint">${c.lastError}</div>`:''}
+  </div>`).join('');
+
+  // lockouts
+  const los=(j.layers?.modelLockout?.lockouts||[]);
+  if(!los.length) lockouts.innerHTML='<div class="hint">No locked models.</div>';
+  else lockouts.innerHTML = los.map(l=> `<div class="detail-card">
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>${l.model}</b><span class="badge-state state-OPEN">LOCKED</span></div>
+    <div class="kv"><span class="hint">provider</span><b>${l.provider}</b></div>
+    <div class="kv"><span class="hint">remaining</span><b>${(Math.ceil(l.remainingMs/1000))}s</b></div>
+    <div class="hint">${l.reason||''}</div>
+  </div>`).join('');
+}
+
+$('#refreshBtn').addEventListener('click', ()=> load().catch(()=>{}));
+document.getElementById('refreshBtnTop')?.addEventListener('click', ()=> load().catch(()=>{}));
+document.getElementById('hamburger')?.addEventListener('click', ()=> document.getElementById('navLinks')?.classList.toggle('open'));
+load().catch(()=>{});
+timer=setInterval(()=>{ load().catch(()=>{}); }, 3000);
+</script>
+</body>
+</html>

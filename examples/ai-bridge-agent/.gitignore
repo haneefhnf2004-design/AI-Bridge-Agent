@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build
+dist/
+build/
+*.zip
+extension/dist/
+
+# Env
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+npm-debug.log*
+*.log
+
+# Bridge Engine local
+.bridge/
+bridge.db
+
+# Temp
+tmp/
+temp/

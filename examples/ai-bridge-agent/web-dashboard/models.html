@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Models — AI Bridge Agent · Universal AI Network</title>
+<meta name="theme-color" content="#0B0F19" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="app.css" />
+<script>try{var t=localStorage.getItem('aibridge_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}</script>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+</head>
+<body>
+<div class="bg"></div>
+<button class="side-toggle" id="hamburger3" aria-label="menu">☰</button>
+<aside class="side-nav" id="navLinks3">
+  <a class="side-brand" href="/">
+    <div class="orb"></div>
+    <div><div class="bt">AI Bridge Agent <span class="pill">v2.0.0</span></div><div class="sub">Universal AI Network · 1000+ models</div></div>
+  </a>
+  <nav class="side-links">
+    <a href="/" class="side-link"><span class="sic">⌂</span>Home</a>
+    <a href="/chat" class="side-link"><span class="sic">💬</span>Chat</a>
+    <a href="/models" class="side-link active"><span class="sic">◈</span>Models</a>
+    <a href="/providers" class="side-link"><span class="sic">⛁</span>Providers</a>
+    <a href="/resilience" class="side-link"><span class="sic">♥</span>Resilience</a>
+    <a href="/mcp" class="side-link"><span class="sic">🔧</span>MCP</a>
+    <a href="/#bridge" class="side-link"><span class="sic">🌉</span>Bridge</a>
+    <div class="side-label">System</div>
+    <a href="/api/models" target="_blank" class="side-link"><span class="sic">●</span>Models JSON</a>
+  </nav>
+  <div class="side-foot">
+    <div class="side-health"><span id="sideHealthDot" class="dot dot--off"></span><span id="sideHealthText" class="health-text">Checking…</span></div>
+    <div class="side-foot-row">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+      <a class="btn primary small" href="/chat">Start Chatting →</a>
+    </div>
+  </div>
+</aside>
+<div class="main">
+<div class="crumbs"><a href="/">Dashboard</a> / Models</div>
+<div class="page-head">
+  <div><h1>Models</h1><p>Search Universal AI Network · Filter by free, fast, vision, code · Click Details for full specs.</p></div>
+  <div class="actions"><span class="op-pill">● <span id="modelsHealthHead">All models operational</span></span><a class="btn-test" href="/chat">Start Chatting →</a></div>
+</div>
+
+<div class="models-toolbar">
+  <input id="modelSearch" placeholder="Search — e.g. 'gpt-4o', 'claude vision', 'llama free', 'deepseek coding'…" autocomplete="off" />
+  <select id="providerFilter"><option value="">All providers</option></select>
+  <select id="tagFilter">
+    <option value="">All</option>
+    <option value="free">💚 Free</option>
+    <option value="fast">⚡ Fast</option>
+    <option value="coding">💻 Coding</option>
+    <option value="vision">👁 Vision</option>
+    <option value="long">📜 Long context</option>
+  </select>
+  <select id="sortSel">
+    <option value="featured">Featured</option>
+    <option value="name">Name A-Z</option>
+    <option value="provider">Provider</option>
+  </select>
+  <span id="modelCount" class="hint"></span>
+</div>
+
+<div id="modelsGrid" class="models-grid ocard-grid"></div>
+
+<div id="modelsEmpty" style="display:none;max-width:1200px;margin:20px auto;padding:0 18px;text-align:center" class="hint">No models match your search. Try "gpt" or clear filters.</div>
+
+<footer class="foot">
+  <span><a href="/">Home</a> · <a href="/chat">Chat</a> · <a href="/api/models" target="_blank">Models JSON</a> · <a href="/api/health" target="_blank">Health</a></span>
+  <span id="modelsHealth" class="hint">Loading models…</span>
+</footer>
+</div>
+<script>
+(function(){var d=document.getElementById('sideHealthDot'),t=document.getElementById('sideHealthText');if(!d||!t)return;fetch('/api/health').then(function(r){return r.json()}).then(function(j){d.className='dot dot--on';var s=j.bridge_ok?('Live: '+(j.models??'?')+' models'):'Backend OK — curated list';t.textContent=s;var h=document.getElementById('modelsHealthHead');if(h)h.textContent=s;}).catch(function(){d.className='dot dot--off';t.textContent='Offline';});})();
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
